@@ -1,0 +1,145 @@
+﻿@page "/"
+@using SmartSaver.Presentation.Models
+@using Microsoft.Extensions.Configuration
+@using System.IO;
+@using Tewr.Blazor.FileReader;
+@using SmartSaver.Presentation.Shared.Breadcrumbs
+@using Newtonsoft.Json
+
+@inject IConfiguration Configuration
+@inject HttpClient Http
+@inject NavigationManager NavigationManager;
+@inject IFileReaderService fileReader
+@inject IBreadcrumbService BreadcrumbService
+
+
+<h1 class="h1">Register </h1>
+<div class="form-control-lg">
+    <EditForm Model="@_user" OnValidSubmit="@HandleSubmitRegister">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <p>
+            <label> User gmail:</label>
+            <InputText id="gmailname" @bind-Value=_user.Gmail />
+        </p>
+
+        <p>
+            <label> User Name:</label>
+            <InputText id="username" @bind-Value=_user.FullName />
+        </p>
+        <p>
+            <label> User Password:</label>
+            <InputText id="username" @bind-Value=_user.Password />
+        </p>
+        <button type="submit" class="btn btn-primary">Register</button>
+
+    </EditForm>
+
+    <EditForm Model="@_user" OnValidSubmit="@HandleSubmitLogin">
+        <button type="submit1" class="btn btn-primary">LogIn</button>
+    </EditForm>
+
+</div>
+<Alert Type="@_alertType" Message="@_alertMessage" />
+
+@code
+{
+    string _alertMessage = "";
+    string _alertType = "";
+    ElementReference inputReference;
+    string error = string.Empty;
+    static string imagePath = null;
+    private User _user = new User();
+    string fileName = string.Empty;
+    string type = string.Empty;
+    string size = string.Empty;
+    Stream fileStream = null;
+    private Transaction[] _lastTransactions;
+    private GroupedTransaction[] _groupedTransactions;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            User user = new User();
+            HttpClient client = new HttpClient();
+
+            var request = await client.GetAsync($"{Configuration["requestUri"]}/users/parser");
+            Task<string> jsonresult = request.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<List<User>>(jsonresult.Result);
+
+
+            foreach (var g in result)
+            {
+                if (g.Logged == true)
+                {
+                    var response = await client.PutAsJsonAsync($"{Configuration["requestUri"]}/users/update", new User()
+                    {
+                        Id = g.Id,
+                        Gmail = g.Gmail,
+                        Card = g.Card,
+                        Cash = g.Cash,
+                        FullName = g.FullName,
+                        UserImage = g.UserImage,
+                        Logged = false,
+                        Password = g.Password
+                    }
+                );
+                    break;
+                }
+
+
+            }
+        }
+        catch (Exception)
+        {
+            NavigationManager.NavigateTo("/error");
+        }
+
+    }
+
+    private void HandleSubmitLogin()
+    {
+        NavigationManager.NavigateTo("/Login");
+    }
+
+    private async Task HandleSubmitRegister()
+    {
+        try
+        {
+            HttpClient client = new HttpClient();
+
+            var response = await client.PostAsJsonAsync($"{Configuration["requestUri"]}/users/add", new User()
+            {
+                Id = Guid.NewGuid(),
+                Gmail = _user.Gmail,
+                Card = 0,
+                Cash = 0,
+                FullName = _user.FullName,
+                UserImage = null,
+                Logged = false,
+                Password = _user.Password
+            }
+            );
+            if (response.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo("/Login");
+            }
+            else
+            {
+
+                _alertType = "danger";
+                _alertMessage = "Goal was not created successfully";
+
+            }
+        }
+        catch (Exception)
+        {
+            NavigationManager.NavigateTo("/error");
+        }
+
+
+    }
+
+
+}

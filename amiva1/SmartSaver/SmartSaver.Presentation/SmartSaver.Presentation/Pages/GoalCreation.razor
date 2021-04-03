@@ -1,0 +1,141 @@
+﻿@page "/savings/add"
+
+@using SmartSaver.Presentation.Models
+@using SmartSaver.Presentation.Helpers
+@using SmartSaver.Presentation.Shared.Breadcrumbs
+@using Microsoft.Extensions.Configuration
+@using Newtonsoft.Json
+
+@inject IConfiguration Configuration
+@inject HttpClient Http
+@inject IJSRuntime JsRuntime
+@inject IBreadcrumbService BreadcrumbService
+@inject NavigationManager NavigationManager;
+
+
+<h1 class="h1">Create a new goal!</h1>
+@if (_goal == null)
+{
+    <SmartSaver.Presentation.Shared.LoadingSpinner.LoadingSpinner />
+}
+else
+{
+    <div class="form-control-lg">
+        <EditForm Model="@_goal" OnValidSubmit="@HandleSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <p>
+                <label> Goal Name:</label>
+                <InputText id="goalName" @bind-Value="_goal.GoalName" />
+            </p>
+            <p>
+                <label> Finish date:</label>
+                <InputDate id="goalAmount" @bind-Value="_goal.FinishDate" />
+            </p>
+            <p>
+                <label> Goal Amount:</label>
+                <InputNumber id="goalAmount" @bind-Value="_goal.GoalAmount" />
+            </p>
+            <p>
+                <label> Description:</label>
+                <InputText id="goalAmount" @bind-Value="_goal.Description" />
+            </p>
+            <button type="submit" class="btn btn-primary">Create a new goal</button>
+        </EditForm>
+    </div>
+}
+
+
+
+<Alert Type="@_alertType" Message="@_alertMessage" />
+
+@code {
+    string _alertMessage = "";
+    string _alertType = "";
+    private SavingGoal _goal = new SavingGoal();
+
+    protected async Task HandleSubmit()
+    {
+        try
+        {
+            User user = new User();
+            HttpClient client = new HttpClient();
+
+            var req = await client.GetAsync($"{Configuration["requestUri"]}/users/parser");
+            Task<string> c = req.Content.ReadAsStringAsync();
+
+            var res = JsonConvert.DeserializeObject<List<User>>(c.Result);
+            foreach (var g in res)
+            {
+                if (g.Logged == true)
+                {
+                    user = new User()
+                    {
+                        Id = g.Id,    //randomize
+                        Gmail = g.Gmail,
+                        Card = g.Card,
+                        Cash = g.Cash,
+                        FullName = g.FullName,
+                        UserImage = g.UserImage,
+                        Logged = true,
+                        Password = g.Password
+                    };
+                    break;
+                }
+            }
+            SavingGoal goal = new SavingGoal()
+            {
+                Id = Guid.NewGuid(),
+                StartDate = DateTime.Now,
+                //FinishDate = DateTime.Today.AddDays(1),
+                FinishDate = _goal.FinishDate,
+                GoalName = _goal.GoalName,
+                GoalAmount = _goal.GoalAmount,
+                Description = _goal.Description,
+                Progress = 0,
+                UserId = user.Id
+            };
+            _alertType = "";
+            //static:
+            SavingGoalsHelper._savingGoals = SavingGoalsHelper._savingGoals.Append(goal).ToArray();
+            SavingGoalsHelper.isAlreadyInit = true;
+            _alertType = "success";
+            _alertMessage = "Goal created successfully!";
+
+
+            var response = await Http.PostAsJsonAsync<SavingGoal>($"{Configuration["requestUri"]}/savings", goal);
+            if (response.IsSuccessStatusCode)
+            {
+                _alertType = "success";
+                _alertMessage = "Goal created successfully!";
+            }
+            else
+            {
+
+                _alertType = "danger";
+                _alertMessage = "Goal was not created successfully";
+
+            }
+        }
+        catch (Exception)
+        {
+            NavigationManager.NavigateTo("/error");
+        }
+
+    }
+
+    protected override void OnInitialized()
+    {
+        InitializeBreadCrumbs();
+    }
+
+
+
+    private void InitializeBreadCrumbs()
+    {
+        BreadcrumbService.ClearList();
+        BreadcrumbService.AddBreadcrumb("Savings", "/savings");
+        BreadcrumbService.AddBreadcrumb("Goal Creation", "/savings");
+        BreadcrumbService.InvokeBreadcrumbsChanged();
+    }
+}

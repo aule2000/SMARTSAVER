@@ -1,0 +1,104 @@
+﻿@page "/Login"
+
+@using SmartSaver.Presentation.Models
+@using SmartSaver.Presentation.Shared.LoadingSpinner
+@using Microsoft.Extensions.Configuration
+@using Tewr.Blazor.FileReader;
+@using SmartSaver.Presentation.Shared.Breadcrumbs
+@using Newtonsoft.Json
+
+
+@inject IConfiguration Configuration
+@inject HttpClient Http
+@inject NavigationManager NavigationManager;
+@inject IFileReaderService fileReader
+@inject IBreadcrumbService BreadcrumbService
+
+<h1 class="h1">LogIn </h1>
+@if (_user == null)
+{
+    <LoadingSpinner/>
+}
+else
+{
+<Alert Type="@_alertType" Message="@_alertMessage" />
+<div class="form-control-lg">
+    <EditForm Model="@_user" OnValidSubmit="@HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <p>
+            <label> UserGmail:</label>
+            <InputText id="userGmail" @bind-Value=_user.Gmail />
+        </p>
+        <p>
+            <label> Password:</label>
+            <InputText id="userPassword" @bind-Value=_user.Password />
+        </p>
+        <button type="submit" class="btn btn-primary">LogIn</button>
+    </EditForm>
+</div>
+}
+
+@code {
+    private User _user = new User();
+    public string _alertMessage = String.Empty;
+    public string _alertType = "success";
+    protected override async Task OnInitializedAsync()
+    {
+
+        //InitializeBreadCrumbs();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        try
+        {
+            HttpClient client = new HttpClient();
+
+            var req = await client.GetAsync($"{Configuration["requestUri"]}/users/parser");
+            Task<string> c = req.Content.ReadAsStringAsync();
+
+            var res = JsonConvert.DeserializeObject<List<User>>(c.Result);
+            foreach (var g in res)
+            {
+                if (_user.Gmail.Equals(g.Gmail) && _user.Password.Equals(g.Password))
+                {
+                    var response = await client.PutAsJsonAsync($"{Configuration["requestUri"]}/users/update", new User()
+                    {
+                        Id = g.Id,
+                        Gmail = g.Gmail,
+                        Card = g.Card,
+                        Cash = g.Cash,
+                        FullName = g.FullName,
+                        UserImage = g.UserImage,
+                        Logged = true,
+                        Password = g.Password
+                    }
+
+
+                );
+                    if (response.IsSuccessStatusCode)
+                    {
+                        NavigationManager.NavigateTo("/Home");
+
+                    }
+                    break;
+                }
+            }
+        }catch (Exception)
+        {
+            NavigationManager.NavigateTo("/error");
+        }
+
+
+
+
+    }
+
+    private void InitializeBreadCrumbs()
+    {
+        BreadcrumbService.ClearList();
+        BreadcrumbService.AddBreadcrumb("Home", "/Home");       
+        BreadcrumbService.InvokeBreadcrumbsChanged();
+    }
+}

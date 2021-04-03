@@ -1,0 +1,17 @@
+{
+  "name": "Smart Saver",
+  "version": "1.0",
+  "description": "Chrome extension made to easily confirm payments on Smart Saver account!",
+  "manifest_version": 2,
+  "permissions": [
+    "storage",
+    "https://*/",
+    "http://*/"
+  ],
+   "background": {
+    "scripts": ["background.js"]
+  },
+  "browser_action": {
+    "default_popup": "popup.html"
+  }
+}

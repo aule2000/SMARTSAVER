@@ -1,0 +1,39 @@
+﻿@if (IsSorting)
+{
+    <div>
+        <div class="p-0; m-0">
+            <svg class="m-0; p-0" fill="@(IsAscending ? "black" : "grey")" xmlns="http://www.w3.org/2000/svg" viewBox="5 8 14 9" width="15" height="15">
+                <path d="M12.354 8.854l5.792 5.792a.5.5 0 01-.353.854H6.207a.5.5 0 01-.353-.854l5.792-5.792a.5.5 0 01.708 0z"></path>
+            </svg>
+        </div>
+        <div class="m-0; p-0">
+            <svg class="m-0; p-0" fill="@(!IsAscending ? "black" : "grey")" xmlns="http://www.w3.org/2000/svg" viewBox="5 8 14 9" width="15" height="15">
+                <path d="M11.646 15.146L5.854 9.354a.5.5 0 01.353-.854h11.586a.5.5 0 01.353.854l-5.793 5.792a.5.5 0 01-.707 0z"></path>
+            </svg>
+        </div>
+    </div>
+}
+else
+{
+    <div>
+        <div class="p-0; m-0">
+            <svg class="m-0; p-0" fill="grey" xmlns="http://www.w3.org/2000/svg" viewBox="5 8 14 9" width="15" height="15">
+                <path d="M12.354 8.854l5.792 5.792a.5.5 0 01-.353.854H6.207a.5.5 0 01-.353-.854l5.792-5.792a.5.5 0 01.708 0z"></path>
+            </svg>
+        </div>
+        <div class="m-0; p-0">
+            <svg class="m-0; p-0" fill="grey" xmlns="http://www.w3.org/2000/svg" viewBox="5 8 14 9" width="15" height="15">
+                <path d="M11.646 15.146L5.854 9.354a.5.5 0 01.353-.854h11.586a.5.5 0 01.353.854l-5.793 5.792a.5.5 0 01-.707 0z"></path>
+            </svg>
+        </div>
+    </div>
+}
+
+
+@code{
+    [Parameter]
+    public bool IsSorting { get; set; }
+
+    [Parameter]
+    public bool IsAscending { get; set; }
+}

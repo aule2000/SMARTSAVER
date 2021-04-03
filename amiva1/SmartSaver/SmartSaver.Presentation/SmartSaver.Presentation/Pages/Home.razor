@@ -1,0 +1,362 @@
+﻿@page "/Home"
+@using SmartSaver.Presentation.Models
+@using SmartSaver.Presentation.Shared.LoadingSpinner
+@using Microsoft.Extensions.Configuration
+@using System.IO;
+@using Tewr.Blazor.FileReader;
+@using SmartSaver.Presentation.Shared.Breadcrumbs
+@using Newtonsoft.Json
+@using System.Diagnostics
+@using Microsoft.AspNetCore.Mvc
+
+@inject IConfiguration Configuration
+@inject HttpClient Http
+@inject NavigationManager NavigationManager;
+@inject IFileReaderService fileReader
+@inject IBreadcrumbService BreadcrumbService
+
+<a class="btn btn-primary m-2" href="/">Log Out</a>
+
+    <div>
+        <h1 class="mb-4">
+            Home
+        </h1>
+        <div class="card mb-4">
+            <div class="card-header">
+                My profile
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3>User information</h3>
+                        <div class="form-group focused">
+                            <label class="form-control-label" for="id">User Id</label>
+                            <input type="text" id="id" class="form-control form-control-alternative" value="@user.Id" readonly>
+                        </div>
+                        <div class="form-group">
+                            <EditForm Model="@user" OnValidSubmit="@HandleSubmit">
+                                <label class="form-control-label" for="email">Email address</label>
+                                <input type="email" id="email" @bind-value="@user.Gmail" class="form-control form-control-alternative">
+                            </EditForm>
+                        </div>
+                        <div class="form-group">
+                            <EditForm Model="@user" OnValidSubmit="@HandleSubmit">
+                                <label class="form-control-label" for="fname">Full name</label>
+                                <input type="text" id="fname" @bind-value="@user.FullName" class="form-control form-control-alternative">
+                            </EditForm>
+                            @*<EditForm Model="@user" OnValidSubmit="@HandleLogOut">
+                                <button type="logout" class="btn btn-primary">Logout</button>
+                            </EditForm>*@
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group focused">
+                                    <label class="form-control-label" for="card">Card balance</label>
+                                    <input type="text" id="card" class="form-control form-control-alternative" value="@user.Card" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group focused">
+                                    <label class="form-control-label" for="cash">Cash balance</label>
+                                    <input type="text" id="cash" class="form-control form-control-alternative" value="@user.Cash" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @*<div class="col-md-6">
+                        <h3>Profile image</h3>
+                        @if (!string.IsNullOrWhiteSpace(error))
+                        {
+                            <div class="alert alert-danger">
+                                @error
+                            </div>
+                        }
+                        @if (imagePath != null)
+                        {
+                            <img style="max-height:181px;" src="@imagePath" class="img-thumbnail mb-4" />
+                        }
+                        <div class="form-group">
+                            <input type="file" accept=".jpg,.JPG" @ref="inputReference" @onchange="async () => await OpenFileAsync()" />
+                        </div>
+                        <button class="btn btn-block btn-success" @onclick="async () => await UploadFileAsync()">Upload profile image</button>
+                    </div>*@
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                My statistics
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3>Your last 5 transactions</h3>
+                        <table class="table">
+                            <tr>
+                                <th>Amount</th>
+                                <th>Category Name</th>
+                                <th>Balance</th>
+                                <th>Created At</th>
+                            </tr>
+
+                            @if (_lastTransactions == null)
+                            {
+                                <LoadingSpinner />
+                            }
+                            else
+                            {
+                                @foreach (var transaction in _lastTransactions)
+                                {
+                                    <tr>
+                                        <td>@transaction.AmountDouble €</td>
+                                        <td>@transaction.Category.Name</td>
+                                        <td>@transaction.BalanceType</td>
+                                        <td>@transaction.CreatedAt</td>
+                                    </tr>
+                                }
+                            }
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h3>Your spent amount per category</h3>
+                        <table class="table">
+                            <tr>
+                                <th>Category Name</th>
+                                <th>Amount</th>
+                            </tr>
+                            @if (_groupedTransactions == null)
+                            {
+                                <LoadingSpinner />
+                            }
+                            else
+                            {
+                                @foreach (var groupedTransaction in _groupedTransactions)
+                                {
+                                    <tr>
+                                        <td>@groupedTransaction.Key</td>
+                                        <td>@groupedTransaction.SumDouble €</td>
+                                    </tr>
+                                }
+                            }
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        
+    
+
+
+
+
+
+
+
+@code
+{
+
+    ElementReference inputReference;
+    string error = string.Empty;
+    static string imagePath = null;
+    private User _user = new User();
+    private User user = new User();
+    string fileName = string.Empty;
+    string type = string.Empty;
+    string size = string.Empty;
+    Stream fileStream = null;
+    private Transaction[] _lastTransactions;
+
+
+    private GroupedTransaction[] _groupedTransactions;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        await GetTableData();
+        try
+        {
+            HttpClient client = new HttpClient();
+
+            var request = await client.GetAsync($"{Configuration["requestUri"]}/users/parser");
+            Task<string> jsonresult = request.Content.ReadAsStringAsync();
+
+            var result = JsonConvert.DeserializeObject<List<User>>(jsonresult.Result);
+            foreach (var g in result)
+            {
+                if (g.Logged == true)
+                {
+                    user = new User()
+                    {
+                        Id = g.Id,
+                        Gmail = g.Gmail,
+                        Card = g.Card,
+                        Cash = g.Cash,
+                        FullName = g.FullName,
+                        UserImage = g.UserImage,
+                        Logged = true,
+                        Password = g.Password
+                    };
+                    break;
+                }
+            }
+        }
+        catch (Exception)
+        {
+            NavigationManager.NavigateTo("/error");
+        }
+
+
+
+        //////////////////////////
+        //try
+        //{
+        //    var tempImagePath = $"{Configuration["requestUri"]}/api/images/{user.Id}.jpg";
+        //    await Http.GetAsync(tempImagePath);
+        //    imagePath = tempImagePath;
+        //}
+        //catch (Exception)
+        //{
+
+        //}
+        //////////////////////////////////paveikslelis virsuj
+
+    }
+    private async Task HandleLogOut()
+    {
+        try
+        {
+            User user = new User();
+            HttpClient client = new HttpClient();
+
+            var request = await client.GetAsync($"{Configuration["requestUri"]}/users/parser");
+            Task<string> jsonresult = request.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<List<User>>(jsonresult.Result);
+
+
+            foreach (var g in result)
+            {
+                if (g.Logged == true)
+                {
+                    var response = await client.PutAsJsonAsync($"{Configuration["requestUri"]}/users/update", new User()
+                    {
+                        Id = g.Id,
+                        Gmail = g.Gmail,
+                        Card = g.Card,
+                        Cash = g.Cash,
+                        FullName = g.FullName,
+                        UserImage = g.UserImage,
+                        Logged = false,
+                        Password = g.Password
+                    }
+                );
+                    break;
+                }
+
+
+            }
+            NavigationManager.NavigateTo("/");
+        }
+        catch (Exception)
+        {
+            NavigationManager.NavigateTo("/error");
+        }
+
+    }
+
+    private async Task GetTableData()
+    {
+
+        try
+        {
+            var request1 = $"{Configuration["requestUri"]}/transactions/last/5";
+            _lastTransactions = await Http.GetFromJsonAsync<Transaction[]>(request1);
+
+            var request2 = $"{Configuration["requestUri"]}/transactions/grouped";
+            _groupedTransactions = await Http.GetFromJsonAsync<GroupedTransaction[]>(request2);
+
+        }
+        catch (Exception)
+        {
+            NavigationManager.NavigateTo("/error");
+        }
+    }
+
+    private void InitializeBreadCrumbs()
+    {
+        BreadcrumbService.ClearList();
+        BreadcrumbService.AddBreadcrumb("Home", "/Home");
+        BreadcrumbService.InvokeBreadcrumbsChanged();
+    }
+
+    protected async Task HandleSubmit()
+    {
+        try
+        {
+            HttpClient client = new HttpClient();
+            var response = await client.PutAsJsonAsync($"{Configuration["requestUri"]}/users/update", new User()
+            {
+                Id = user.Id,
+                Gmail = user.Gmail,
+                Card = user.Card,
+                Cash = user.Cash,
+                FullName = user.FullName,
+                UserImage = user.UserImage,
+                Logged = true,
+                Password = user.Password
+            }
+
+            );
+        }
+        catch (Exception)
+        {
+            NavigationManager.NavigateTo("/error");
+        }
+    }
+
+
+    
+
+    async Task OpenFileAsync()
+    {
+        var file = (await fileReader.CreateReference(inputReference).EnumerateFilesAsync()).FirstOrDefault();
+
+        if (file == null)
+            return;
+
+        var fileInfo = await file.ReadFileInfoAsync();
+        fileName = fileInfo.Name;
+        size = $"{fileInfo.Size}b";
+        type = fileInfo.Type;
+
+        using (var ms = await file.CreateMemoryStreamAsync((int)fileInfo.Size))
+        {
+            fileStream = new MemoryStream(ms.ToArray());
+        }
+    }
+
+    async Task UploadFileAsync()
+    {
+        error = string.Empty;
+        if (!fileName.EndsWith(".jpg"))
+        {
+            error = "Image must be jpg type";
+            return;
+        }
+
+        var content = new MultipartFormDataContent();
+        content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data");
+        content.Add(new StreamContent(fileStream, (int)fileStream.Length), "image", fileName);
+        content.Add(new StringContent(user.Id.ToString()), "userId");
+
+        var response = await Http.PostAsync($"{Configuration["requestUri"]}/api/images", content);    //cia reiktu dar kad i duombaze irasytu
+
+        if (response.IsSuccessStatusCode)
+        {
+            var uploadedFileName = await response.Content.ReadAsStringAsync();
+            imagePath = $"{Configuration["requestUri"]}/{uploadedFileName}";
+            NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+        }
+    }
+}

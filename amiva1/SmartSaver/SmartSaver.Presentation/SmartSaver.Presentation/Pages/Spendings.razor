@@ -1,0 +1,284 @@
+﻿@page "/spendings"
+
+@using SmartSaver.Presentation.Models
+@using Microsoft.Extensions.Configuration
+@using SmartSaver.Presentation.Shared.Breadcrumbs
+@using SmartSaver.Presentation.Shared
+@using System.Collections.Generic
+@using Microsoft.AspNetCore.WebUtilities;
+
+@inject IConfiguration Configuration
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject IBreadcrumbService BreadcrumbService
+
+@using SmartSaver.Presentation.Shared.LoadingSpinner
+
+
+<h1>Spendings</h1>
+
+<Alert Type="@_alertType" Message="@_alertMessage" />
+
+<div class="row">
+    <div class="col-md-6">
+        <h3>Categories</h3>
+        @if (_spendingCategories == null)
+        {
+            <LoadingSpinner />
+        }
+        else
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th width="90"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (_spendingCategories.Count() == 0)
+                    {
+                        <tr rowspan="1">
+                            <td class="text-center">There are no categories</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var category in _spendingCategories)
+                        {
+                            <tr>
+                                <td>@category.Name</td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger" @onclick="@(e => DeleteCategory(e, category.Id))">
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+            @if (PageCount > 1)
+            {
+                <div class="row">
+                    <nav>
+                        <ul class="pagination">
+                            <li class="@("page-item" + (Page == 1 ? " disabled" : ""))"><button class="page-link" @onclick="() => NavigateToPage(Page - 1)">Previous</button></li>
+                            <li class="@("page-item" + (Page == PageCount ? " disabled" : ""))"><button class="page-link" @onclick="() => NavigateToPage(Page + 1)">Next</button></li>
+                        </ul>
+                    </nav>
+                </div>
+            }
+        }
+    </div>
+    <div class="col-md-6">
+        <h3>Add new category</h3>
+        <EditForm Model="_newCategory" OnValidSubmit="@CreateCategory">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group">
+                <label id="name">Name</label>
+                <InputText id="name" class="form-control" @bind-Value="_newCategory.Name" />
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Create</button>
+            </div>
+        </EditForm>
+        @if (_spendingCategories != null)
+        {
+            <h3>Spend money</h3>
+            <EditForm Model="_newTransaction" OnValidSubmit="@SpendMoney">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <InputSelect id="category" class="form-control" @bind-Value="_newTransaction.CategoryIdString">
+                        <option hidden></option>
+                        @foreach (var category in _spendingCategories)
+                            {
+                            <option value="@category.Id">@category.Name</option>
+                            }
+                    </InputSelect>
+                </div>
+
+                <div class="form-group">
+                    <label for="balance">Balance</label>
+                    <InputSelect id="balance" class="form-control" @bind-Value="_newTransaction.BalanceType">
+                        <option hidden></option>
+                        <option>Card</option>
+                        <option>Cash</option>
+                    </InputSelect>
+                </div>
+
+                <div class="form-group">
+                    <label for="amount">Amount</label>
+                    <InputNumber id="amount" class="form-control" step="0.01" @bind-Value="_newTransaction.AmountDouble" />
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <InputTextArea id="description" class="form-control" @bind-Value="_newTransaction.Description" />
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </EditForm>
+        }
+    </div>
+</div>
+
+@code {
+    private Category[] _spendingCategories;
+    private Category _newCategory = new Category();
+    private Transaction _newTransaction = new Transaction();
+    public string _alertMessage = String.Empty;
+    public string _alertType = "success";
+    public int Page = 1;
+    public int PageCount = 1;
+    public int PerPage = 10;
+
+    protected async Task ReloadCategories()
+    {
+        try
+        {
+            var url = $"{Configuration["requestUri"]}/categories";
+            var query = new Dictionary<string, string>
+        {
+                {"page", Page.ToString() },
+                {"per-page", PerPage.ToString() },
+            };
+            _spendingCategories = await Http.GetFromJsonAsync<Category[]>(QueryHelpers.AddQueryString(url, query));
+        }
+        catch (Exception)
+        {
+            NavigationManager.NavigateTo("/error");
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetPaginationData();
+        await ReloadCategories();
+        InitializeBreadCrumbs();
+    }
+
+    protected void ResetAlert()
+    {
+        _alertType = "success";
+        _alertMessage = "";
+    }
+
+    private async Task GetPaginationData()
+    {
+        try
+        {
+            int categoriesCount = await Http.GetFromJsonAsync<int>($"{Configuration["requestUri"]}/categories/count");
+
+            PageCount = categoriesCount / PerPage + 1;
+        }
+        catch (Exception)
+        {
+            NavigationManager.NavigateTo("/error");
+        }
+    }
+
+    public async Task NavigateToPage(int page)
+    {
+        Page = page;
+
+        await ReloadCategories();
+    }
+
+    private async Task CreateCategory()
+    {
+        ResetAlert();
+        try
+        {
+            var response = await Http.PostAsJsonAsync<Category>($"{Configuration["requestUri"]}/categories", _newCategory);
+
+            await ReloadCategories();
+            _newCategory.Name = "";
+            _alertMessage = "Category created successfully";
+        }
+        catch (HttpRequestException exception)
+        {
+            _alertType = "danger";
+            _alertMessage = "Category was not created. Error: " + exception.Message;
+        }
+        catch (Exception)
+        {
+            NavigationManager.NavigateTo("/error");
+        }
+    }
+
+    private async Task SpendMoney()
+    {
+        ResetAlert();
+        try
+        {
+            var response = await Http.PostAsJsonAsync<Transaction>($"{Configuration["requestUri"]}/transactions/spend", _newTransaction);
+            if (response.IsSuccessStatusCode)
+            {
+                _newTransaction = new Transaction();
+                _alertMessage = "Spending completed successfully";
+            }
+            else
+            {
+                _alertType = "danger";
+                _alertMessage = "Not enough money in balance";
+            }
+        }
+        catch (HttpRequestException exception)
+        {
+            _alertType = "danger";
+            _alertMessage = "Spending was not completed. Error: " + exception.Message;
+        }
+        catch (Exception)
+        {
+            NavigationManager.NavigateTo("/error");
+        }
+    }
+
+    private async Task DeleteCategory(MouseEventArgs e, Guid id)
+    {
+        ResetAlert();
+        try
+        {
+            var response = await Http.DeleteAsync($"{Configuration["requestUri"]}/categories/" + id.ToString());
+
+            if (response.IsSuccessStatusCode)
+                if (response.IsSuccessStatusCode)
+                {
+                    _spendingCategories = _spendingCategories.Where(c => c.Id != id).ToArray();
+
+                    _alertMessage = "Category deleted successfully";
+                }
+                else
+                {
+                    _alertType = "danger";
+                    _alertMessage = "Category has not been deleted because it has transactions";
+                }
+        }
+        catch (HttpRequestException)
+        {
+            _alertType = "danger";
+            _alertMessage = "Category was not found";
+        }
+        catch (Exception)
+        {
+            NavigationManager.NavigateTo("/error");
+        }
+    }
+
+
+    private void InitializeBreadCrumbs()
+    {
+        BreadcrumbService.ClearList();
+        BreadcrumbService.AddBreadcrumb("Spendings", "/spendings");
+        BreadcrumbService.InvokeBreadcrumbsChanged();
+    }
+}
+

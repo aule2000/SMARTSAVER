@@ -1,0 +1,49 @@
+﻿@layout EmptyLayout
+@page "/error"
+
+@using Microsoft.Extensions.Configuration
+@using SmartSaver.Presentation.Shared.LoadingSpinner
+
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject IConfiguration Configuration
+
+
+<div class="page-wrap d-flex flex-row align-items-center" style="min-height: 100vh; min-width: 100%;">
+    <div class="container">
+        <div class="row justify-content-center">
+            @if (_isLoading)
+            {
+                <LoadingSpinner />
+            }
+            else
+            {
+                <div class="col-md-12 text-center">
+                    <span class="display-1 d-block">500</span>
+                    <div class="mb-4 lead">Error connecting to the server.</div>
+                    <button @onclick="TryAgain" class="btn btn-link">Try again</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool _isLoading = false;
+
+    public async Task TryAgain()
+    {
+        _isLoading = true;
+
+        try
+        {
+            var response = await Http.GetAsync(Configuration["requestUri"]);
+
+            NavigationManager.NavigateTo("/");
+        }
+        catch (Exception)
+        {
+            _isLoading = false;
+        }
+    }
+}

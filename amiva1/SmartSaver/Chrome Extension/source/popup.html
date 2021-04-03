@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="popup.js"></script>   
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"> 
+    <style>
+      body {
+        background-color: RGB(136, 176, 75);
+      }
+      </style> 
+  </head>
+  <body>   
+    <div style="padding: 20px 20px 20px 20px;">           
+        <h3>Please enter Smart Saver credentials</h3>
+        <p>UserId: </p>         
+        <input id="userId" />  
+        <button style="margin-top: 10px" id="saveButton" type="button">Save</button>   
+        
+        <p>Enter amount to spend: </p>         
+        <input id="amount" />  
+
+        <p>Enter category: </p>         
+        <input id="category" />  
+
+        <p>Enter description: </p>         
+        <input id="description" />  
+
+        <p>Select balance</p>
+        <input type="radio" id="cash" name="balance" value="Cash">
+        <label for="cash1">Cash</label><br>
+        <input type="radio" id="card" name="balance" value="Card">
+        <label for="card1">Card</label><br>  
+        <button style="margin-top: 10px" id="spendButton" type="button">Spend</button
+     
+        <div style="margin-top: 10px">
+            <label id="messageLabel"></label>
+        </div>
+    </div>      
+  </body>
+</html>

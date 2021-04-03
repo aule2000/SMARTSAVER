@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="319px" preserveAspectRatio="none" style="width:1220px;height:319px;" version="1.1" viewBox="0 0 1220 319" width="1220px" zoomAndPan="magnify"><defs><filter height="300%" id="f1tovdnbw8f7uv" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><!--MD5=[ee0fec323975fbe97ba28321ad4c4bf3]
+entity U--><rect fill="#FEFECE" filter="url(#f1tovdnbw8f7uv)" height="37.6094" style="stroke:#000000;stroke-width:1.5;" width="49" x="179.67" y="8.3564"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="29" x="189.67" y="32.8896">User</text><!--MD5=[8ad42e69c823d91e931492f14bc2a1bb]
+entity S--><rect fill="#FEFECE" filter="url(#f1tovdnbw8f7uv)" height="37.6094" style="stroke:#000000;stroke-width:1.5;" width="93" x="722.67" y="240.3564"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="73" x="732.67" y="264.8896">SavingGoal</text><!--MD5=[1daea32f23ea6c81361d0f13801d7efd]
+entity T--><rect fill="#FEFECE" filter="url(#f1tovdnbw8f7uv)" height="37.6094" style="stroke:#000000;stroke-width:1.5;" width="95" x="224.67" y="240.3564"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="75" x="234.67" y="264.8896">Transaction</text><!--MD5=[16fab723be418f7eaf2ea4bd895a8e51]
+entity C--><rect fill="#FEFECE" filter="url(#f1tovdnbw8f7uv)" height="37.6094" style="stroke:#000000;stroke-width:1.5;" width="78" x="355.17" y="240.3564"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="58" x="365.17" y="264.8896">Category</text><!--MD5=[770389ab9df153645bc6ef28055eb2b5]
+entity A--><rect fill="#FEFECE" filter="url(#f1tovdnbw8f7uv)" height="37.6094" style="stroke:#000000;stroke-width:1.5;" width="123" x="430.67" y="124.3564"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="103" x="440.67" y="148.8896">SmartSaver App</text><!--MD5=[1f67e8801336723dc06e2b95a190f0a5]
+entity G--><rect fill="#FEFECE" filter="url(#f1tovdnbw8f7uv)" height="37.6094" style="stroke:#000000;stroke-width:1.5;" width="110" x="468.17" y="240.3564"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="90" x="478.17" y="264.8896">Goal Manager</text><!--MD5=[b2d39259b6aeabc16b394deeb0238426]
+entity B--><rect fill="#FEFECE" filter="url(#f1tovdnbw8f7uv)" height="37.6094" style="stroke:#000000;stroke-width:1.5;" width="71" x="850.67" y="240.3564"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="51" x="860.67" y="264.8896">Balance</text><!--MD5=[225a11a356cb2db3802a7b30c3a51941]
+entity I--><rect fill="#FEFECE" filter="url(#f1tovdnbw8f7uv)" height="37.6094" style="stroke:#000000;stroke-width:1.5;" width="65" x="1143.67" y="240.3564"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="45" x="1153.67" y="264.8896">Income</text><!--MD5=[68f82070d0aec4ff4b64d9b1102926da]
+entity E--><rect fill="#FEFECE" filter="url(#f1tovdnbw8f7uv)" height="37.6094" style="stroke:#000000;stroke-width:1.5;" width="74" x="1034.17" y="240.3564"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="54" x="1044.17" y="264.8896">Expense</text><!--MD5=[1200cabd2a84086424de0b397dfd2f71]
+entity L--><rect fill="#FEFECE" filter="url(#f1tovdnbw8f7uv)" height="37.6094" style="stroke:#000000;stroke-width:1.5;" width="106" x="345.17" y="8.3564"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="86" x="355.17" y="32.8896">Login Service</text><!--MD5=[626ad08abde0879284d52f51a0eb42aa]
+entity P--><rect fill="#FEFECE" filter="url(#f1tovdnbw8f7uv)" height="37.6094" style="stroke:#000000;stroke-width:1.5;" width="60" x="129.17" y="240.3564"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="40" x="139.17" y="264.8896">Profile</text><!--MD5=[1d8c999db4191e394d598d261d081f0f]
+link U to L--><path d="M228.92,41.5764 C234.95,44.3764 241.51,46.8964 247.92,48.3564 C281.72,56.0464 291.6,53.2364 325.92,48.3564 C329.51,47.8464 333.17,47.1964 336.84,46.4464 " fill="none" id="U-to-L" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="344.88,44.6664,336.4183,43.4832,337.7267,49.3388,344.88,44.6664" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="76" x="248.92" y="44.8516">Initiates login</text><!--MD5=[620ef4e150da9d6a0a587030754277ae]
+link L to U--><path d="M344.92,27.3564 C310.41,27.3564 266.55,27.3564 237.04,27.3564 " fill="none" id="L-to-U" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="228.74,27.3564,236.74,30.3564,236.74,24.3564,228.74,27.3564" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="80" x="246.92" y="20.8516">Authenticated</text><!--MD5=[4d2aebaf5aed7f4a5b0df6f6b17c5d35]
+link L to A--><path d="M413.06,46.4164 C428.92,65.6464 454.12,96.2064 471.8,117.6564 " fill="none" id="L-to-A" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="477.03,123.9964,474.2575,115.9148,469.6272,119.7305,477.03,123.9964" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="66" x="451.17" y="90.8516">Home page</text><!--MD5=[cd4fdb2e827cdec394b03c5592c4717f]
+link A to P--><path d="M461.99,162.3964 C435.87,177.2864 396.67,197.9064 360.17,210.3564 C294.58,232.7164 273.84,221.4564 207.17,240.3564 C201.35,242.0064 195.23,244.0464 189.39,246.1564 " fill="none" id="A-P" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[c6e447438bc0821fb2112fc6484b1195]
+link U to P--><path d="M224.69,46.3564 C251.17,71.8864 291.67,120.2064 272.17,162.3564 C256.59,196.0264 222.74,222.2064 196.13,238.6664 " fill="none" id="U-to-P" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="189.18,242.8464,197.5834,241.303,194.4965,236.158,189.18,242.8464" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="59" x="279.17" y="148.8516">Add photo</text><!--MD5=[c6e447438bc0821fb2112fc6484b1195]
+link U to P--><path d="M179.49,33.9164 C140.48,44.1764 65.78,70.1964 34.17,124.3564 C6,172.6064 75.3,217.7064 121.6,241.2864 " fill="none" id="U-to-P-1" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="128.81,244.8764,122.9912,238.6201,120.3122,243.9888,128.81,244.8764" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="80" x="35.17" y="148.8516">Change photo</text><!--MD5=[c6e447438bc0821fb2112fc6484b1195]
+link U to P--><path d="M192.63,46.6064 C181.55,65.2964 165.57,95.6064 159.17,124.3564 C151,161.0264 153.14,204.7664 155.83,232.0564 " fill="none" id="U-to-P-2" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="156.71,240.3064,158.8359,232.0312,152.8705,232.6738,156.71,240.3064" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="103" x="160.17" y="148.8516">Change password</text><!--MD5=[6013407b2d7d18ee76edeb15fc603e3a]
+link A to G--><path d="M497.08,162.4164 C502.2,181.2364 510.26,210.8964 516.07,232.2564 " fill="none" id="A-to-G" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="518.18,239.9964,518.9734,231.4894,513.184,233.0653,518.18,239.9964" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="75" x="510.17" y="206.8516">Review goals</text><!--MD5=[0a56a0523e6f2b352bbcd0917d4a6d8a]
+link G to S--><path d="M578.44,241.5764 C584.13,240.2664 589.86,239.1464 595.42,238.3564 C643.82,231.4664 657.15,230.6064 705.42,238.3564 C708.5,238.8464 711.64,239.4664 714.78,240.1864 " fill="none" id="G-to-S" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="722.59,242.1464,715.5565,237.2957,714.1013,243.1166,722.59,242.1464" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="50" x="625.42" y="228.8516">Add new</text><!--MD5=[0a56a0523e6f2b352bbcd0917d4a6d8a]
+link G to S--><path d="M578.62,274.1564 C590.51,276.7364 603.07,279.0164 614.92,280.3564 C646.27,283.8964 654.6,284.2464 685.92,280.3564 C695.28,279.1964 705.1,277.3164 714.58,275.1664 " fill="none" id="G-to-S-1" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="722.45,273.2864,713.9722,272.2245,715.3644,278.0608,722.45,273.2864" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="69" x="615.92" y="276.8516">Edit/change</text><!--MD5=[0a56a0523e6f2b352bbcd0917d4a6d8a]
+link G to S--><path d="M546.29,240.2864 C559.73,230.4564 577.52,219.4764 595.42,214.3564 C618.92,207.6364 682.12,206.9564 705.42,214.3564 C718.89,218.6264 731.97,226.8964 742.74,235.1864 " fill="none" id="G-to-S-2" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="749.13,240.3164,744.7715,232.9678,741.0142,237.6457,749.13,240.3164" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="29" x="635.92" y="204.8516">Fund</text><!--MD5=[0a56a0523e6f2b352bbcd0917d4a6d8a]
+link G to S--><path d="M553.27,278.4764 C570.58,288.3164 593.14,299.2964 614.92,304.3564 C645.66,311.4864 655.33,312.0964 685.92,304.3564 C703.17,299.9864 720.72,291.2664 735.23,282.6564 " fill="none" id="G-to-S-3" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="742.09,278.4564,733.6991,280.0668,736.827,285.187,742.09,278.4564" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="41" x="629.92" y="300.8516">remove</text><!--MD5=[0a56a0523e6f2b352bbcd0917d4a6d8a]
+link G to S--><path d="M578.38,259.3564 C618.93,259.3564 673.78,259.3564 714.26,259.3564 " fill="none" id="G-to-S-4" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="722.42,259.3564,714.42,256.3564,714.42,262.3564,722.42,259.3564" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="108" x="596.42" y="252.8516">Reaching progress</text><!--MD5=[5e2eec62a50b26b6b0db6c12e4ee289c]
+link A to B--><path d="M553.75,160.6364 C622.26,178.9964 736.1,210.2264 833.17,240.3564 C838.83,242.1064 844.8,244.0564 850.62,245.9864 " fill="none" id="A-B" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[a34cd5204f3ba40cd9585e15067c2f82]
+link B to I--><path d="M913.27,240.3364 C934.77,226.4864 966.17,208.8764 996.67,201.3564 C1027.31,193.8064 1037.06,193.6864 1067.67,201.3564 C1094.54,208.0864 1122.04,222.8864 1142.63,235.8464 " fill="none" id="B-to-I" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1149.61,240.3464,1144.505,233.4952,1141.2589,238.5412,1149.61,240.3464" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="69" x="997.67" y="206.8516">Edit Income</text><!--MD5=[7f2f3d3eec3815d2ae4615844545f843]
+link B to E--><path d="M921.84,259.3564 C951.43,259.3564 993.69,259.3564 1025.7,259.3564 " fill="none" id="B-to-E" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="1034.02,259.3564,1026.02,256.3564,1026.02,262.3564,1034.02,259.3564" style="stroke:#A80036;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="76" x="939.92" y="252.8516">Edit expense</text><!--MD5=[0cbc738bf1a482a239387d755528aa44]
+link A to T--><path d="M476.93,162.3664 C463.58,177.1164 442.95,197.5864 421.17,210.3564 C412.14,215.6464 360.06,231.9364 319.98,244.0864 " fill="none" id="A-T" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[6f1aec8af92d1b4ba3dc1ce787031cb7]
+link T to B--><path d="M291.92,240.1264 C307.53,226.3564 330.63,208.9564 354.67,201.3564 C452.34,170.4564 719.23,166.7864 815.67,201.3564 C834.13,207.9764 851.22,221.7464 863.95,234.2064 " fill="none" id="T-to-B" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="869.83,240.1864,866.3535,232.3817,862.0788,236.5921,869.83,240.1864" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[cd5f0b052b3f617717573bbb763731b6]
+link T to C--><path d="M319.83,259.3564 C328.79,259.3564 337.76,259.3564 346.73,259.3564 " fill="none" id="T-to-C" style="stroke:#A80036;stroke-width:1.0;"/><polygon fill="#A80036" points="354.96,259.3564,346.96,256.3564,346.96,262.3564,354.96,259.3564" style="stroke:#A80036;stroke-width:1.0;"/><!--MD5=[3325f240bded28cd34adc75401607c1c]
+@startuml
+skinparam linestyle ortho
+rectangle User as U
+rectangle SavingGoal as S
+rectangle Transaction as T
+rectangle Category as C
+rectangle "SmartSaver App" as A
+rectangle "Goal Manager" as G
+rectangle Balance as B
+rectangle Income as I
+rectangle Expense as E
+rectangle "Login Service" as L
+rectangle Profile as P
+U -right->> L: Initiates login
+L -right->> U: Authenticated
+L -down->> A: Home page
+A -down- P
+U -right->> P: Add photo
+U -right->> P: Change photo
+U -right->> P: Change password
+A -down->> G: Review goals
+G -right->> S: Add new
+G -right->> S: Edit/change
+G -right->> S: Fund
+G -right->> S: remove
+G -right->> S: Reaching progress
+A -down- B
+B -right->> I: Edit Income
+B -right->> E: Edit expense
+A -down- T
+T -right->> B
+T -right->> C
+@enduml
+
+PlantUML version 1.2021.2(Sun Mar 07 13:10:27 EET 2021)
+(GPL source distribution)
+Java Runtime: Java(TM) SE Runtime Environment
+JVM: Java HotSpot(TM) 64-Bit Server VM
+Default Encoding: Cp1252
+Language: en
+Country: US
+--></g></svg>

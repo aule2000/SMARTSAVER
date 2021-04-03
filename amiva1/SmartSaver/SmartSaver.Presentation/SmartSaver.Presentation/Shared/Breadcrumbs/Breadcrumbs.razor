@@ -1,0 +1,34 @@
+﻿@using SmartSaver.Presentation.Models
+
+@inject IBreadcrumbService BreadcrumbService
+
+
+@inject NavigationManager NavigationManager
+
+<nav aria-label="breadcrumb w-100">
+    <ol class="breadcrumb">
+        @foreach (var breadcrumb in _breadcrumbList)
+        {
+            <a class="btn btn-link breadcrumb-item" href="@breadcrumb.Url">@breadcrumb.BreadcrumbDisplayName</a>
+        }
+    </ol>
+</nav>
+
+
+@code
+{
+    private List<Breadcrumb> _breadcrumbList;
+
+    protected override void OnInitialized()
+    {
+        _breadcrumbList = BreadcrumbService.GetBreadcrumbsList().ToList();
+        BreadcrumbService.BreadcrumbsChanged += RenderHeader;
+        _breadcrumbList.Add(new Breadcrumb{BreadcrumbDisplayName = "Testing", Url = "aaa"});
+    }
+    
+    private void RenderHeader()
+    {
+        _breadcrumbList = BreadcrumbService.GetBreadcrumbsList().ToList();
+        StateHasChanged();
+    }
+}

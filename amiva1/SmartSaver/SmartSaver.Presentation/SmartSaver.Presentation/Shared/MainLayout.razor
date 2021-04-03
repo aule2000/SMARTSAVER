@@ -1,0 +1,57 @@
+﻿@using SmartSaver.Presentation.Shared.Breadcrumbs
+@using SmartSaver.Presentation.Shared.LoadingSpinner
+@using Microsoft.Extensions.Configuration
+@using Newtonsoft.Json
+@using SmartSaver.Presentation.Models
+
+@inherits LayoutComponentBase
+
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject IConfiguration Configuration
+
+
+@if (!_isLoading)
+{
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+}
+
+<div class="main">
+    @*<Breadcrumbs />*@
+    <div class="content px-4">
+        @if (_isLoading)
+        {
+            <LoadingSpinner />
+        }
+        else
+        {
+            @Body
+        }
+    </div>
+</div>
+
+
+@code {
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await Http.GetAsync(Configuration["requestUri"]);
+
+            
+            // NavigationManager.NavigateTo($"{ Configuration["requestUri"]}/Balance");
+            // await Http.GetAsync($"{ Configuration["requestUri"]}/login");
+
+            _isLoading = false;
+        }
+        catch (Exception)
+        {
+            NavigationManager.NavigateTo("/error");
+        }
+
+    }
+}

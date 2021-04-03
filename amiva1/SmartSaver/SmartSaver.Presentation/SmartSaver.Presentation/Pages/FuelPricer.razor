@@ -1,0 +1,100 @@
+﻿@page "/pricer"
+@using Microsoft.Extensions.Configuration
+@using Newtonsoft.Json
+@using SmartSaver.Presentation.Models
+@using SmartSaver.Presentation.Shared.LoadingSpinner
+
+@inject HttpClient HttpClient
+@inject IConfiguration Configuration
+
+
+<h3 class="mb-4">Cheapest Fuel</h3>
+
+
+@if (_prices == null)
+{
+    <LoadingSpinner />
+}
+else
+{
+    <div class="d-inline-flex">
+        <div class="mr-2">
+            <div class="card" style="width: 18rem;">
+                <div class="card-header">
+                    Gassoline
+                </div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var price in _prices["gassoline"])
+                    {
+                        <li class="list-group-item">@price.Company - @price.Price</li>
+                    }
+                </ul>
+            </div>
+        </div>
+        <div class="mr-2">
+            <div class="card" style="width: 18rem;">
+                <div class="card-header">
+                    Diesel
+                </div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var price in _prices["diesel"])
+                    {
+                        <li class="list-group-item">@price.Company - @price.Price</li>
+                    }
+                </ul>
+            </div>
+        </div>
+        <div class="mr-2">
+            <div class="card" style="width: 18rem;">
+                <div class="card-header">
+                    Gas
+                </div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var price in _prices["gas"])
+                    {
+                        <li class="list-group-item">@price.Company - @price.Price</li>
+                    }
+                </ul>
+            </div>
+        </div>
+        <div class="mr-2">
+            <div class="card" style="width: 18rem;">
+                <div class="card-header">
+                    Diesel Plus
+                </div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var price in _prices["dieselplus"])
+                    {
+                        <li class="list-group-item">@price.Company - @price.Price</li>
+                    }
+                </ul>
+            </div>
+        </div>
+        <div class="mr-2">
+            <div class="card" style="width: 18rem;">
+                <div class="card-header">
+                    Gasoline Plus
+                </div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var price in _prices["gassolineplus"])
+                    {
+                        <li class="list-group-item">@price.Company - @price.Price</li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+}
+
+@code
+{
+    private Dictionary<string, List<Fuel>> _prices;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await HttpClient.GetAsync($"{Configuration["requestUri"]}/pricer");
+        var data = await response.Content.ReadAsStringAsync();
+        _prices = JsonConvert.DeserializeObject<Dictionary<string, List<Fuel>>>(data);
+    }
+}

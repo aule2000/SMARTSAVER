@@ -1,0 +1,193 @@
+﻿@page "/savings/edit"
+
+@using SmartSaver.Presentation.Models
+@using SmartSaver.Presentation.Helpers
+@using SmartSaver.Presentation.Shared.LoadingSpinner
+@using SmartSaver.Presentation.Constants
+@using System.Text.Json
+@using SmartSaver.Presentation.Shared.Breadcrumbs
+@using Microsoft.Extensions.Configuration
+
+@inject IConfiguration Configuration
+@inject HttpClient Http
+@inject IJSRuntime JsRuntime
+@inject IBreadcrumbService BreadcrumbService
+
+@if (SavingGoalsHelper._savingGoals == null)
+{
+    <LoadingSpinner />
+}
+else
+{
+    <h1 class="h1">Fund your goal!</h1>
+    <div class="form-control-lg">
+        <form>
+            <p>
+                Select your goal
+                <select name="goalselect" @bind="selectedValueName" class="select-field">
+                    @foreach (var goal in SavingGoalsHelper._savingGoals)
+                    {
+                        <option value="@goal.GoalName">@goal.GoalName</option>
+                    }
+                </select>
+            </p>
+            <p>
+                Goal Amount:
+                <input type="number" @bind-value="tempAmount" placeholder="$" />
+            </p>
+            
+
+            <p>
+                Select your balance
+                <select name="balancetype" @bind="tempPaymentType" class="select-field">
+                    <option value="cash">Cash</option>
+                    <option value="card">Card</option>
+                </select>
+            </p>
+            
+
+            <button type="button" class="btn btn-primary" @onclick="EditGoal">Fund</button>
+        </form>
+    </div>
+
+
+}
+
+
+<Alert Type="@_alertType" Message="@_alertMessage" />
+<!--
+https://getbootstrap.com/docs/4.0/components/alerts/
+                                           -->
+
+
+@code {
+    string selectedValueName = "";
+    string tempPaymentType = "";
+    double tempAmount = 0;
+
+    string _alertMessage = "";
+    string _alertType = "danger"; //success or danger
+
+    //DB
+    private async Task DeleteGoal(Guid id)
+    {
+        _alertMessage = "";
+        _alertType = "";
+        //Deleting statically:
+        SavingGoalsHelper._savingGoals = SavingGoalsHelper._savingGoals.Where(c => c.Id != id).ToArray();
+        SavingGoalsHelper.isAlreadyInit = true;
+        //END
+
+        var response = await Http.DeleteAsync($"{Configuration["requestUri"]}/savings/" + id.ToString());
+        if (response.IsSuccessStatusCode)
+        {
+            _alertType = "success";
+            _alertMessage = "Goal deleted successfully!";
+            SavingGoalsHelper._savingGoals = SavingGoalsHelper._savingGoals.Where(c => c.Id != id).ToArray();
+        }
+        else
+        {
+            _alertType = "danger";
+            _alertMessage = "Goal was not deleted successfully.";
+        }
+    }
+
+    private async Task UpdateGoal(SavingGoal goal)
+    {
+        _alertMessage = "";
+        _alertType = "";
+        //Updating statically:
+        int ind = Array.FindIndex(SavingGoalsHelper._savingGoals, goal => goal.GoalName == selectedValueName);
+        SavingGoalsHelper._savingGoals[ind] = goal;
+        SavingGoalsHelper.isAlreadyInit = true;
+        //END
+
+        var response = await Http.PutAsJsonAsync($"{Configuration["requestUri"]}/savings/goaledit", goal);
+        if (response.IsSuccessStatusCode)
+        {
+            _alertType = "success";
+            _alertMessage = "Goal updated successfully!";
+        }
+        else
+        {
+            _alertType = "danger";
+            _alertMessage = "Goal was not updated successfully.";
+        }
+    }
+
+
+
+    private async void EditGoal()
+    {
+        Console.WriteLine(selectedValueName + " " + tempPaymentType + " " + tempAmount + "$");
+        if (string.IsNullOrEmpty(selectedValueName))
+        {
+            _alertType = "danger";
+            _alertMessage = "There was an error when selecting a goal...";
+            Console.WriteLine("There was an error when selecting a goal...");
+            return;
+        }
+        else if (tempAmount <= 0)
+        {
+            _alertType = "danger";
+            _alertMessage = "Invalid goal amount input!";
+            Console.WriteLine("Invalid goal amount input!");
+            return;
+        }
+        else
+        {
+            SavingGoal foundGoal = Array.Find(SavingGoalsHelper._savingGoals, goal => goal.GoalName == selectedValueName);
+            if (foundGoal == null)
+            {
+                _alertType = "danger";
+                _alertMessage = "There was an error finding an existing goal";
+                Console.WriteLine("There was an error finding an existing goal");
+            }
+            else
+            {
+                _alertType = "success";
+                _alertMessage = "The goal was found! Payment type: " + tempPaymentType;
+                Console.WriteLine("The goal was found! Payment type: " + tempPaymentType);
+                foundGoal.Progress += tempAmount;
+                SavingGoalsHelper.isAlreadyInit = true;
+                if (foundGoal.GoalAmount <= foundGoal.Progress)
+                {
+                    _alertType = "success";
+                    _alertMessage = "The goal is completed! Congratulations!";
+                    Console.WriteLine("The goal is completed! Congratulations!");
+                    //delete the goal! get the id of the goal!
+
+
+                    //DB
+                    await DeleteGoal(foundGoal.Id);
+                }
+                else
+                {
+                    //Update the db
+                    Console.WriteLine("Trying to update...");
+
+                    Console.WriteLine("sadsadsa " + foundGoal);
+
+                    //DB
+                    await UpdateGoal(foundGoal);
+                }
+
+            }
+
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        InitializeBreadCrumbs();
+
+    }
+
+    private void InitializeBreadCrumbs()
+    {
+        BreadcrumbService.ClearList();
+        BreadcrumbService.AddBreadcrumb("Savings", "/savings");
+        BreadcrumbService.AddBreadcrumb("Goal Edit", "/savings");
+        BreadcrumbService.InvokeBreadcrumbsChanged();
+    }
+}

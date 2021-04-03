@@ -1,0 +1,149 @@
+﻿@page "/balances"
+
+@using SmartSaver.Presentation.Models
+@using Microsoft.Extensions.Configuration
+@using SmartSaver.Presentation.Shared.Breadcrumbs
+@using Newtonsoft.Json
+
+
+@inject IConfiguration Configuration
+@inject HttpClient Http
+@inject NavigationManager NavigationManager;
+@inject IBreadcrumbService BreadcrumbService
+
+<h1>Balances</h1>
+
+<div class="form-control-lg">
+    <EditForm Model="@_user" OnValidSubmit="@HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <p>
+            <label> Cash balance:</label>
+            <InputNumber id="cash" @bind-Value="@_user.Cash" class="form-control" />
+        </p>
+        <p>
+            <label> Card balance:</label>
+            <InputNumber id="card" @bind-Value="@_user.Card" class="form-control" />
+        </p>
+        <p>
+            <label> Total balance:</label>
+            <InputNumber id="total" @bind-Value="@total" class="form-control" readonly />
+        </p>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </EditForm>
+</div>
+
+@code
+{
+
+    private User _user = new User();
+    private double total;
+    protected override async Task OnInitializedAsync()
+    {
+        //InitializeBreadCrumbs();
+        try
+        {
+            HttpClient client = new HttpClient();
+
+            var req = await client.GetAsync($"{Configuration["requestUri"]}/users/parser");
+            Task<string> c = req.Content.ReadAsStringAsync();
+
+            var res = JsonConvert.DeserializeObject<List<User>>(c.Result);
+            foreach (var g in res)
+            {
+                if (g.Logged == true)
+                {
+                    _user = new User()
+                    {
+                        Id = g.Id,
+                        Gmail = g.Gmail,
+                        Card = g.Card,
+                        Cash = g.Cash,
+                        FullName = g.FullName,
+                        UserImage = g.UserImage,
+                        Logged = true,
+                        Password = g.Password
+                    };
+                }
+
+            }
+            Count();
+        }
+        catch (Exception)
+        {
+            NavigationManager.NavigateTo("/error");
+        }
+
+    }
+
+    protected async Task HandleSubmit()
+    {
+        try
+        {
+            HttpClient client = new HttpClient();
+
+            var req = await client.GetAsync($"{Configuration["requestUri"]}/users/parser");
+            Task<string> c = req.Content.ReadAsStringAsync();
+            var res = JsonConvert.DeserializeObject<List<User>>(c.Result);
+            foreach (var g in res)
+            {
+                if (g.Logged == true)
+                {
+                    var response = await client.PutAsJsonAsync($"{Configuration["requestUri"]}/users/update", new User()
+                    {
+                        Id = g.Id,
+                        Gmail = g.Gmail,
+                        Card = _user.Card,
+                        Cash = _user.Cash,
+                        FullName = g.FullName,
+                        UserImage = g.UserImage,
+                        Logged = true,
+                        Password = g.Password
+                    }
+
+
+                );
+
+                }
+            }
+            Count();
+        }
+        catch (Exception)
+        {
+            NavigationManager.NavigateTo("/error");
+        }
+
+
+
+
+
+    }
+
+    public class TotalBalance
+    {
+        public delegate double delSum(double a, double b);
+        public double Sum(double a, double b)
+        {
+            return a + b;
+        }
+    }
+
+    public void Count()
+    {
+        TotalBalance obj = new TotalBalance();
+        TotalBalance.delSum objSum = null;
+        objSum = obj.Sum;
+
+        if (objSum != null)
+        {
+            total = objSum(_user.Card, _user.Cash);
+        }
+    }
+
+    private void InitializeBreadCrumbs()
+    {
+        BreadcrumbService.ClearList();
+        BreadcrumbService.AddBreadcrumb("Balance", "/balance");
+        BreadcrumbService.InvokeBreadcrumbsChanged();
+    }
+}

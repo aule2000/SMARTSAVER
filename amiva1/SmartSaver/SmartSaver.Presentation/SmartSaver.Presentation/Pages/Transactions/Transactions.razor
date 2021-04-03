@@ -1,0 +1,177 @@
+﻿@page "/transactions"
+@page "/transactions/{sortingColumn}/{isAscending:bool}"
+
+@using SmartSaver.Presentation.Models
+@using SmartSaver.Presentation.Shared.Sorting
+@using SmartSaver.Presentation.Shared.LoadingSpinner
+@using Microsoft.Extensions.Configuration
+@using SmartSaver.Presentation.Shared.Breadcrumbs
+@using Newtonsoft.Json
+
+@inject IConfiguration Configuration
+@inject IBreadcrumbService BreadcrumbService
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+
+<h1>Transactions</h1>
+
+@if (_transactions == null)
+{
+    <LoadingSpinner />
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th @onclick="@(async () => { SetSortingModelValues(TransactionsSortingEnum.Category, !_sortingModel.IsAscending); await GetSortedTransactions();})">
+                    <div class="d-inline-flex">
+                        <div class="align-self-center">
+                            <div class="p-2">
+                                Category
+                            </div>
+                        </div>
+                        <div>
+                            <SortingButtons IsSorting="@(_sortingModel.SortingColumn == TransactionsSortingEnum.Category)" IsAscending="@_sortingModel.IsAscending" />
+                        </div>
+                    </div>
+                </th>
+                <th @onclick="@(async () => { SetSortingModelValues(TransactionsSortingEnum.Amount, !_sortingModel.IsAscending); await GetSortedTransactions();})">
+                    <div class="d-inline-flex">
+                        <div class="align-self-center">
+                            <div class="p-2">
+                                Amount
+                            </div>
+                        </div>
+                        <div>
+                            <SortingButtons IsSorting="@(_sortingModel.SortingColumn == TransactionsSortingEnum.Amount)" IsAscending="@_sortingModel.IsAscending" />
+                        </div>
+                    </div>
+                </th>
+                <th @onclick="@(async () => { SetSortingModelValues(TransactionsSortingEnum.Description, !_sortingModel.IsAscending); await GetSortedTransactions();})">
+                    <div class="d-inline-flex">
+                        <div class="align-self-center">
+                            <div class="p-2">
+                                Description
+                            </div>
+                        </div>
+                        <div>
+                            <SortingButtons IsSorting="@(_sortingModel.SortingColumn == TransactionsSortingEnum.Description)" IsAscending="@_sortingModel.IsAscending" />
+                        </div>
+                    </div>
+                </th>
+                <th @onclick="@(async () => { SetSortingModelValues(TransactionsSortingEnum.CreatedAt, !_sortingModel.IsAscending); await GetSortedTransactions();})">
+                    <div class="d-inline-flex">
+                        <div class="align-self-center">
+                            <div class="p-2">
+                                Created Date
+                            </div>
+                        </div>
+                        <div>
+                            <SortingButtons IsSorting="@(_sortingModel.SortingColumn == TransactionsSortingEnum.CreatedAt)" IsAscending="@_sortingModel.IsAscending" />
+                        </div>
+                    </div>
+                </th>
+                <th @onclick="@(async () => { SetSortingModelValues(TransactionsSortingEnum.BalanceType, !_sortingModel.IsAscending); await GetSortedTransactions();})">
+                    <div class="d-inline-flex">
+                        <div class="align-self-center">
+                            <div class="p-2">
+                                Balance
+                            </div>
+                        </div>
+                        <div>
+                            <SortingButtons IsSorting="@(_sortingModel.SortingColumn == TransactionsSortingEnum.BalanceType)" IsAscending="@_sortingModel.IsAscending" />
+                        </div>
+                    </div>
+                </th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var transaction in _transactions)
+            {
+                <tr>
+                    <td>@transaction.Category.Name</td>
+                    <td>@transaction.AmountDouble €</td>
+                    <td>@transaction.Description</td>
+                    <td>@transaction.CreatedAt</td>
+                    <td>@transaction.BalanceType</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public string SortingColumn { get; set; }
+
+    [Parameter]
+    public bool IsAscending { get; set; }
+
+    private Transaction[] _transactions;
+    private readonly TransactionsSortingModel _sortingModel = new TransactionsSortingModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        ParseUrlParameters();
+        await GetSortedTransactions();
+        InitializeBreadCrumbs();
+    }
+
+    private async Task GetSortedTransactions()
+    {
+        try
+        {
+            User user = new User();
+            HttpClient client = new HttpClient();
+            var req = await client.GetAsync($"{Configuration["requestUri"]}/users/parser");
+            Task<string> c = req.Content.ReadAsStringAsync();
+
+            var res = JsonConvert.DeserializeObject<List<User>>(c.Result);
+            foreach (var g in res)
+            {
+                if (g.Logged == true)
+                {
+                    user = new User()
+                    {
+                        Id = g.Id,
+                        Gmail = g.Gmail,
+                        Card = g.Card,
+                        Cash = g.Cash,
+                        FullName = g.FullName,
+                        UserImage = g.UserImage,
+                        Logged = true,
+                        Password = g.Password
+                    };
+                }
+            }
+            var requestUri = $"{Configuration["requestUri"]}/transactions/{user.Id}/sorting?sortingColumn={_sortingModel.SortingColumn}&isAscending={_sortingModel.IsAscending}";
+            _transactions = await Http.GetFromJsonAsync<Transaction[]>(requestUri);
+            NavigationManager.NavigateTo($"transactions/{_sortingModel.SortingColumn}/{_sortingModel.IsAscending}");
+        }
+        catch (Exception)
+        {
+            NavigationManager.NavigateTo("/error");
+        }
+    }
+
+    private void ParseUrlParameters()
+    {
+        if (!string.IsNullOrEmpty(SortingColumn))
+            SetSortingModelValues((TransactionsSortingEnum)Enum.Parse(typeof(TransactionsSortingEnum), SortingColumn), IsAscending);
+    }
+
+    private void SetSortingModelValues(TransactionsSortingEnum column, bool isAscending)
+    {
+        _sortingModel.SortingColumn = column;
+        _sortingModel.IsAscending = isAscending;
+    }
+
+    private void InitializeBreadCrumbs()
+    {
+        BreadcrumbService.ClearList();
+        BreadcrumbService.AddBreadcrumb("Transactions", "/transactions");
+        BreadcrumbService.InvokeBreadcrumbsChanged();
+    }
+}

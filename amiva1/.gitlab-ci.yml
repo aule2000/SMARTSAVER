@@ -1,0 +1,51 @@
+image: mcr.microsoft.com/dotnet/core/sdk
+
+stages:
+    - build
+    - deploy
+
+build-presentation:
+    only:
+        - branches
+    before_script:
+        - cd SmartSaver/SmartSaver.Presentation
+        - dotnet restore
+    stage: build
+    script:
+        dotnet publish --no-restore -c Release
+    artifacts:
+        paths:
+            - ./SmartSaver/SmartSaver.Presentation/SmartSaver.Presentation/bin/Release/netstandard2.1/publish/
+        expire_in: 1 day
+
+build-server:
+    only:
+        - branches
+    before_script:
+        - cd SmartSaver/SmartSaver.Server
+        - dotnet restore
+    stage: build
+    script:
+        dotnet publish --no-restore -c Release
+    artifacts:
+        paths:
+            - ./SmartSaver/SmartSaver.Server/SmartSaver.Server/bin/Release/netcoreapp3.1/publish/
+        expire_in: 1 day
+
+deploy-presentation:
+    only:
+        - master
+    dependencies:
+        - build-presentation
+    stage: deploy
+    script:
+        winscp /command "open ftp://$amiva:0AAKzCcpMoStQ1FmB0K5T6hdXGvkT1mKwbgnei03kew2dJdWe9zanz2xa3bp@waws-prod-db3-177.ftp.azurewebsites.windows.net" "cd /site/wwwroot" "rm *.*" "put SmartSaver\SmartSaver.Presentation\SmartSaver.Presentation\bin\Release\netstandard2.1\publish\*.*" exit
+
+deploy-server:
+    only:
+        - master
+    dependencies:
+        - build-server
+    stage: deploy
+    script:
+        winscp /command "open ftp://amiva-server:byxoS6s7oc8XNyrBdnmSMzpgfKnrY7NoNlJL36dip5nc9rCkQu67chPRMeGB@waws-prod-db3-177.ftp.azurewebsites.windows.net" "cd /site/wwwroot" "rm *.*" "put SmartSaver\SmartSaver.Server\SmartSaver.Server\bin\Release\netcoreapp3.1\publish\*.*" exit

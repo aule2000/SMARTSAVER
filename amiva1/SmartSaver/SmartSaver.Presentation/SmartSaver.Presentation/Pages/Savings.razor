@@ -1,0 +1,246 @@
+﻿@page "/savings"
+@page "/savings/{sortingColumn}/{isAscending:bool}"
+
+@using SmartSaver.Presentation.Models
+@using SmartSaver.Presentation.Shared.Sorting
+@using SmartSaver.Presentation.Shared.LoadingSpinner
+@using SmartSaver.Presentation.Helpers
+@using SmartSaver.Presentation.Shared.Breadcrumbs
+@using Microsoft.Extensions.Configuration
+@using Newtonsoft.Json
+
+@inject IConfiguration Configuration
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+@inject IJSRuntime JsRuntime
+@inject IBreadcrumbService BreadcrumbService
+
+
+
+
+
+
+<a class="btn btn-primary m-2" href="savings/add">Add Goal</a>
+<a class="btn btn-primary m-2" href="savings/edit">Add Funds</a>
+
+<h1>Saving Goals</h1>
+@if (savingGoal == null)
+{
+    <LoadingSpinner />
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th @onclick="@(async () => { SetSortingModelValues(SavingGoalsSortingEnum.GoalName, !_sortingModel.IsAscending); await GetSortedSavingGoals(); })">
+                    <div class="d-inline-flex">
+                        <div class="align-self-center">
+                            <div class="p-2">
+                                Goal Name
+                            </div>
+                        </div>
+                        <div>
+                            <SortingButtons IsSorting="@(_sortingModel.SortingColumn == SavingGoalsSortingEnum.GoalName)" IsAscending="@_sortingModel.IsAscending" />
+                        </div>
+                    </div>
+                </th>
+                <th @onclick="@(async () => { SetSortingModelValues(SavingGoalsSortingEnum.Description, !_sortingModel.IsAscending); await GetSortedSavingGoals(); })">
+                    <div class="d-inline-flex">
+                        <div class="align-self-center">
+                            <div class="p-2">
+                                Description
+                            </div>
+                        </div>
+                        <div>
+                            <SortingButtons IsSorting="@(_sortingModel.SortingColumn == SavingGoalsSortingEnum.Description)" IsAscending="@_sortingModel.IsAscending" />
+                        </div>
+                    </div>
+                </th>
+                <th @onclick="@(async () => { SetSortingModelValues(SavingGoalsSortingEnum.GoalAmount, !_sortingModel.IsAscending); await GetSortedSavingGoals(); })">
+                    <div class="d-inline-flex">
+                        <div class="align-self-center">
+                            <div class="p-2">
+                                Goal Amount
+                            </div>
+                        </div>
+                        <div>
+                            <SortingButtons IsSorting="@(_sortingModel.SortingColumn == SavingGoalsSortingEnum.GoalAmount)" IsAscending="@_sortingModel.IsAscending" />
+                        </div>
+                    </div>
+                </th>
+                <th @onclick="@(async () => { SetSortingModelValues(SavingGoalsSortingEnum.StartDate, !_sortingModel.IsAscending); await GetSortedSavingGoals(); })">
+                    <div class="d-inline-flex">
+                        <div class="align-self-center">
+                            <div class="p-2">
+                                Start Date
+                            </div>
+                        </div>
+                        <div>
+                            <SortingButtons IsSorting="@(_sortingModel.SortingColumn == SavingGoalsSortingEnum.StartDate)" IsAscending="@_sortingModel.IsAscending" />
+                        </div>
+                    </div>
+                </th>
+                <th @onclick="@(async () => { SetSortingModelValues(SavingGoalsSortingEnum.FinishDate, !_sortingModel.IsAscending); await GetSortedSavingGoals(); })">
+                    <div class="d-inline-flex">
+                        <div class="align-self-center">
+                            <div class="p-2">
+                                Finish Date
+                            </div>
+                        </div>
+                        <div>
+                            <SortingButtons IsSorting="@(_sortingModel.SortingColumn == SavingGoalsSortingEnum.FinishDate)" IsAscending="@_sortingModel.IsAscending" />
+                        </div>
+                    </div>
+                </th>
+                <th @onclick="@(async () => { SetSortingModelValues(SavingGoalsSortingEnum.Progress, !_sortingModel.IsAscending); await GetSortedSavingGoals(); })">
+                    <div class="d-inline-flex">
+                        <div class="align-self-center">
+                            <div class="p-2">
+                                Progress
+                            </div>
+                        </div>
+                        <div>
+                            <SortingButtons IsSorting="@(_sortingModel.SortingColumn == SavingGoalsSortingEnum.Progress)" IsAscending="@_sortingModel.IsAscending" />
+                        </div>
+                    </div>
+                </th>
+                <th @onclick="@(async () => { SetSortingModelValues(SavingGoalsSortingEnum.Progress, !_sortingModel.IsAscending); await GetSortedSavingGoals(); })">
+                    <div class="d-inline-flex">
+                        <div class="align-self-center">
+                            <div class="p-2">
+                                Progress %
+                            </div>
+                        </div>
+                        <div>
+                            <SortingButtons IsSorting="@(_sortingModel.SortingColumn == SavingGoalsSortingEnum.Progress)" IsAscending="@_sortingModel.IsAscending" />
+                        </div>
+                    </div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (SavingGoalsHelper._savingGoals == null)
+            {
+                <LoadingSpinner />
+            }
+            else
+            {
+                @foreach (var goal in SavingGoalsHelper._savingGoals)
+                {
+                    <tr @onclick="@(() => NavigationManager.NavigateTo("/savings/edit"))">
+                        <td>@goal.GoalName</td>
+                        <td>@goal.Description</td>
+                        <td>@goal.GoalAmount $</td>
+                        <td>@goal.StartDate.ToString("MM/dd/yyyy")</td>
+                        <td>@goal.FinishDate.ToString("MM/dd/yyyy")</td>
+                        <td>@goal.Progress $</td>
+                        <td>@goal.ProgressPercentageValue.ToString("0.00") %</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+   
+    private readonly SavingGoalsSortingModel _sortingModel = new SavingGoalsSortingModel();
+    private SavingGoal savingGoal = new SavingGoal();
+    [Parameter]
+    public string SortingColumn { get; set; }
+    [Parameter]
+    public bool IsAscending { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!SavingGoalsHelper.isAlreadyInit)
+        {
+            ParseUrlParameters();
+            await GetSortedSavingGoals();
+        }
+        else
+        {
+            return;
+        }
+    }
+
+    private async Task GetSortedSavingGoals()
+    {
+        try
+        {
+            User user = new User();
+            HttpClient client = new HttpClient();
+
+            var req = await client.GetAsync($"{Configuration["requestUri"]}/users/parser");
+            Task<string> c = req.Content.ReadAsStringAsync();
+
+            var res = JsonConvert.DeserializeObject<List<User>>(c.Result);
+            foreach (var g in res)
+            {
+                //Console.WriteLine("sadsasda " + g.Gmail);
+                if (g.Logged == true)
+                {
+                    Console.WriteLine("sadasdas");
+                    user = new User()
+                    {
+                        Id = g.Id,    //randomize
+                        Gmail = g.Gmail,
+                        Card = g.Card,
+                        Cash = g.Cash,
+                        FullName = g.FullName,
+                        UserImage = g.UserImage,
+                        Logged = true,
+                        Password = g.Password
+                    };
+                    break;
+                }
+            }
+            var requestUri = $"{Configuration["requestUri"]}/savings/{user.Id}/sorting?sortingColumn={_sortingModel.SortingColumn}&isAscending={_sortingModel.IsAscending}";
+            SavingGoalsHelper._savingGoals = await Http.GetFromJsonAsync<SavingGoal[]>(requestUri);
+            NavigationManager.NavigateTo($"savings/{_sortingModel.SortingColumn}/{_sortingModel.IsAscending}");
+        }
+        catch (Exception)
+        {
+            NavigationManager.NavigateTo("/error");
+        }
+
+
+
+    }
+
+    private void ParseUrlParameters()
+    {
+        if (!string.IsNullOrEmpty(SortingColumn))
+        {
+            SetSortingModelValues((SavingGoalsSortingEnum)Enum.Parse(typeof(SavingGoalsSortingEnum), SortingColumn), IsAscending);
+        }
+    }
+
+    private void SetSortingModelValues(SavingGoalsSortingEnum column, bool isAscending)
+    {
+        _sortingModel.SortingColumn = column;
+        _sortingModel.IsAscending = isAscending;
+    }
+
+
+
+
+    public void CreateGoal()
+    {
+        InitializeBreadCrumbs();
+    }
+
+    protected override void OnInitialized()
+    {
+        InitializeBreadCrumbs();
+    }
+
+    private void InitializeBreadCrumbs()
+    {
+        BreadcrumbService.ClearList();
+        BreadcrumbService.AddBreadcrumb("Savings", "/savings");
+        BreadcrumbService.InvokeBreadcrumbsChanged();
+    }
+}
